@@ -1,14 +1,19 @@
 from pathlib import Path
 import georinex as gr
 
-BASE_DIR = Path(__file__).resolve().parents[3]
+from app.services.rinex_downloader import download_latest_rinex
 
-DATASET = BASE_DIR / "datasets" / "navigation" / "BRDC00WRD_R_20250030000_01D_GN.rnx"
+
 
 def load_navigation():
-    print("Base directory:", BASE_DIR)
-    print("Dataset path:", DATASET)
-    print("Exists:", DATASET.exists())
 
-    nav = gr.load(DATASET)
+    dataset = download_latest_rinex()
+
+
+    print("Dataset path:", dataset)
+    print("Exists:", dataset.exists())
+
+
+    nav = gr.load(dataset)
+
     return nav

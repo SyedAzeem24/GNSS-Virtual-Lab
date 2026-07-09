@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-class Observation(BaseModel):
+class VisibilityRequest(BaseModel):
     latitude: float
     longitude: float
-    altitude: float
+    height: float

@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from app.models.visibility_request import VisibilityRequest
 from app.services.visibility import compute_visibility
 
 router = APIRouter(
@@ -7,7 +8,11 @@ router = APIRouter(
     tags=["Visibility"]
 )
 
+@router.post("/")
+def get_visibility(request: VisibilityRequest):
 
-@router.get("/")
-def get_visibility():
-    return compute_visibility()
+    return compute_visibility(
+        request.latitude,
+        request.longitude,
+        request.height
+    )

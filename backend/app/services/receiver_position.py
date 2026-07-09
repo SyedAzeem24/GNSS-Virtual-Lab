@@ -23,10 +23,3 @@ def llh_to_ecef(latitude, longitude, height):
         "z": float(Z)
     }
     
-receiver = llh_to_ecef(
-    latitude=33.6844,
-    longitude=73.0479,
-    height=540
-)
-
-print(receiver)

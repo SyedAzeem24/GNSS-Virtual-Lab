@@ -1,23 +1,19 @@
 from app.services.rinex_reader import load_navigation
 from app.services.satellite_position import calculate_satellite_position
+from app.services.receiver_position import llh_to_ecef
 import math
 import numpy as np
 
 
-def compute_visibility():
+def compute_visibility(latitude, longitude, height):
 
     nav = load_navigation()
 
-    # Receiver ECEF coordinates (Islamabad)
-    receiver = {
-        "x": 1549181.8224859294,
-        "y": 5082338.083035286,
-        "z": 3517670.831340403
-    }
+    
+    receiver = llh_to_ecef(latitude, longitude, height)
 
-    # Receiver latitude/longitude (radians)
-    lat = np.radians(33.6844)
-    lon = np.radians(73.0479)
+    lat = np.radians(latitude)
+    lon = np.radians(longitude)
 
     satellites = []
 
