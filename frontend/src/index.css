@@ -1,1 +1,38 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg-gradient: linear-gradient(135deg, #a2b9b1 0%, #7e9a90 100%);
+  --sidebar-bg: #5c756c;
+  --sidebar-hover: rgba(255, 255, 255, 0.1);
+  --card-glass: rgba(235, 242, 238, 0.85);
+  --text-main: #2e3b37;
+  --text-muted: #5a6e66;
+  --accent-pastel-green: #a7d7c5;
+  --accent-pastel-pink: #f7cbd9;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg-gradient);
+  color: var(--text-main);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Glassmorphism Card Style */
+.cute-card {
+  background: var(--card-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 32px 0 rgba(92, 117, 108, 0.2);
+  padding: 24px;
+}

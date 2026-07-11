@@ -1,102 +1,58 @@
-import {
-  LayoutDashboard,
-  BookOpen,
-  Satellite,
-  Activity,
-  Globe2,
-  Settings,
-} from "lucide-react";
+import React from 'react';
 
-import { NavLink } from "react-router-dom";
+export default function Sidebar({ isMobile, currentTab, setCurrentTab }) {
+  const menuItems = [
+    { id: 'dashboard', label: 'Dashboard'},
+    { id: 'simulation', label: 'Simulation'},
+    { id: 'dop', label: 'DOP Analysis' },
+    { id: 'information', label: 'Information'}
+  ];
 
-const links = [
-  {
-    name: "Dashboard",
-    path: "/",
-    icon: LayoutDashboard,
-  },
-  {
-    name: "Learn GNSS",
-    path: "/learn",
-    icon: BookOpen,
-  },
-  {
-    name: "Visibility",
-    path: "/visibility",
-    icon: Satellite,
-  },
-  {
-    name: "DOP Analysis",
-    path: "/dop",
-    icon: Activity,
-  },
-  {
-    name: "Skyplot",
-    path: "/skyplot",
-    icon: Globe2,
-  },
-];
-
-export default function Sidebar() {
   return (
-    <aside className="w-64 bg-slate-900 text-white flex flex-col">
-
-      <div className="p-6 border-b border-slate-700">
-
-        <h1 className="text-xl font-bold">
-          GNSS Lab
-        </h1>
-
-        <p className="text-slate-400 text-sm mt-1">
-          Virtual Laboratory
-        </p>
-
+    <div style={{
+      width: isMobile ? '100%' : '240px',
+      minWidth: isMobile ? '100%' : '240px',
+      backgroundColor: '#2e3b37',
+      color: '#fff',
+      display: 'flex',
+      flexDirection: 'column',
+      padding: '20px',
+      boxSizing: 'border-box'
+    }}>
+      <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '30px', color: '#a3b899' }}>
+        GNSS Lab
       </div>
 
-      <nav className="flex-1 p-4">
-
-        {links.map((item) => {
-
-          const Icon = item.icon;
-
+      <nav style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', gap: '8px', width: '100%', flexWrap: 'wrap' }}>
+        {menuItems.map((item) => {
+          const isActive = currentTab === item.id;
           return (
-
-            <NavLink
-              key={item.name}
-              to={item.path}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-2.5 rounded-xl mb-2 transition ${
-                  isActive
-                    ? "bg-indigo-900"
-                    : "hover:bg-slate-800"
-                }`
-              }
+            <button
+              key={item.id}
+              onClick={() => setCurrentTab(item.id)} // 👈 THIS Wires up the active navigation click!
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                width: isMobile ? 'auto' : '100%',
+                padding: '12px 16px',
+                backgroundColor: isActive ? '#3d614e' : 'transparent',
+                color: isActive ? '#fff' : '#b2c2bc',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                textAlign: 'left',
+                fontSize: '14px',
+                fontWeight: isActive ? 'bold' : 'normal',
+                transition: 'background 0.2s'
+              }}
             >
-
-              <Icon size={18} />
-
-              {item.name}
-
-            </NavLink>
-
+              <span>{item.icon}</span>
+              <span>{item.label}</span>
+            </button>
           );
-
         })}
-
       </nav>
-
-      <div className="p-4 border-t border-slate-700">
-
-        <button className="flex items-center gap-3 w-full hover:bg-slate-800 rounded-xl px-4 py-3">
-
-          <Settings size={20} />
-
-          Settings
-
-        </button>
-
-      </div>
-
-    </aside>
+    </div>
   );
 }

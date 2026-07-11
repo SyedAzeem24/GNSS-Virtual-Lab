@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.education import router as education_router
 from app.api.visibility import router as visibility_router
+from app.api.skyplot import router as skyplot_router
+from app.api.dop import router as dop_router
 
 app = FastAPI(
     title="GNSS Virtual Lab"
@@ -13,6 +15,8 @@ app.add_middleware(
         "http://localhost:5174",
         "http://127.0.0.1:5173",
         "http://127.0.0.1:5174",
+         "http://127.0.0.1:5175",
+         "http://localhost:5175",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -21,10 +25,12 @@ app.add_middleware(
 
 app.include_router(education_router)
 app.include_router(visibility_router)
-
+app.include_router(skyplot_router,prefix="/skyplot",tags=["Sky Plot"])
+app.include_router(dop_router)
 
 @app.get("/")
 def home():
     return {
         "message": "GNSS Virtual Lab Backend Running"
     }
+    

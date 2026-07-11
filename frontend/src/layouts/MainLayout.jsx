@@ -1,22 +1,37 @@
-import Navbar from "../components/Navbar";
-import Sidebar from "../components/Sidebar";
+import React, { useState, useEffect } from 'react';
+import Sidebar from '../components/Sidebar';
 
-export default function MainLayout({ children }) {
+export default function MainLayout({ children, currentTab, setCurrentTab }) {
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const isMobile = windowWidth < 768;
+
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div style={{
+      display: 'flex',
+      flexDirection: isMobile ? 'column' : 'row',
+      width: '100vw',
+      minHeight: '100vh', 
+      backgroundColor: '#f0f4f2',
+    }}>
+      <Sidebar isMobile={isMobile} currentTab={currentTab} setCurrentTab={setCurrentTab} />
 
-      <Sidebar />
-
-      <div className="flex flex-col flex-1">
-
-        <Navbar />
-
-        <main className="flex-1 overflow-y-auto p-6">
-          {children}
-        </main>
-
-      </div>
-
+      <main style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        width: '100%',
+        boxSizing: 'border-box'
+        
+      }}>
+        {children}
+      </main>
     </div>
   );
 }
