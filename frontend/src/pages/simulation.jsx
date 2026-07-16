@@ -10,8 +10,6 @@ export default function Simulation() {
   const [selectedYear, setSelectedYear] = useState("2026");
   const [satellites, setSatellites] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  // Responsive state tracking window width
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   useEffect(() => {
@@ -20,7 +18,6 @@ export default function Simulation() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Determine if we should stack vertically (e.g., screen width less than 1024px)
   const isMobileOrTablet = windowWidth < 1024;
 
   const locations = [
@@ -36,7 +33,7 @@ export default function Simulation() {
 
   const years = Array.from({ length: 2026 - 2018 + 1 }, (_, i) => 2018 + i);
 
-  const fetchVisibility = async (lat, lon, h, year) => {
+  const fetchVisibility = async (lat, lon, h) => {
     setLoading(true);
     try {
       const response = await axios.post("http://127.0.0.1:8000/visibility/", {
@@ -54,7 +51,7 @@ export default function Simulation() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetchVisibility(latitude, longitude, height, selectedYear);
+    fetchVisibility(latitude, longitude, height);
   };
 
   const handleLocationChange = async (e) => {
@@ -65,7 +62,7 @@ export default function Simulation() {
     setHeight(city.height);
 
     if (city.name !== "Custom Coordinates") {
-      await fetchVisibility(city.latitude, city.longitude, city.height, selectedYear);
+      await fetchVisibility(city.latitude, city.longitude, city.height);
     }
   };
 
@@ -73,215 +70,95 @@ export default function Simulation() {
   const hiddenSatellites = satellites.filter((sat) => !sat.visible);
 
   return (
-    <div className="cute-card" style={containerStyle}>
-      <h3 style={{ margin: '0 0 5px 0', color: '#3d614e', fontSize: '22px', fontWeight: '600' }}>
-        Simulation Parameters
-      </h3>
+    <div style={styles.container}>
+      <h3 style={{ color: '#fff', fontSize: '20px', fontWeight: '600', marginBottom: '24px' }}>Simulation Parameters</h3>
 
-      {/* 🛠️ Dynamic Responsive Control Form */}
-      <form onSubmit={handleSubmit} style={{
-        display: 'flex', 
-        gap: '12px', 
-        alignItems: 'flex-end', 
-        background: 'rgba(255,255,255,0.4)', 
-        padding: '15px', 
-        borderRadius: '16px',
-        flexWrap: isMobileOrTablet ? 'wrap' : 'nowrap'
-      }}>
-        <div style={{ ...inputGroupStyle, minWidth: isMobileOrTablet ? '45%' : 'auto' }}>
-          <label style={labelStyle}>Location Preset</label>
-          <select value={selectedLocation} onChange={handleLocationChange} style={selectStyle}>
-            {locations.map((loc) => <option key={loc.name} value={loc.name}>{loc.name}</option>)}
-          </select>
+      {/* High-Tech Parameter Grid Card */}
+      <form onSubmit={handleSubmit} className="glass-panel" style={styles.panelCard}>
+        <div style={styles.formRow}>
+          <div style={styles.inputGroup}>
+            <label style={styles.label}>Location Preset</label>
+            <select value={selectedLocation} onChange={handleLocationChange} style={styles.selectInput}>
+              {locations.map((loc) => <option key={loc.name} value={loc.name}>{loc.name}</option>)}
+            </select>
+          </div>
+
+          <div style={styles.inputGroup}>
+            <label style={styles.label}>Dataset Year</label>
+            <select value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)} style={styles.selectInput}>
+              {years.map((y) => <option key={y} value={y}>{y}</option>)}
+            </select>
+          </div>
+
+          {['Latitude', 'Longitude', 'Height (m)'].map((label, i) => (
+            <div key={label} style={styles.inputGroup}>
+              <label style={styles.label}>{label}</label>
+              <input 
+                type="number" 
+                step="any" 
+                style={styles.textInput}
+                value={i === 0 ? latitude : i === 1 ? longitude : height} 
+                disabled={selectedLocation !== "Custom Coordinates"} 
+                onChange={(e) => i === 0 ? setLatitude(e.target.value) : i === 1 ? setLongitude(e.target.value) : setHeight(e.target.value)} 
+                required 
+              />
+            </div>
+          ))}
+
+          <button type="submit" disabled={loading} style={{ ...styles.submitBtn, opacity: loading ? 0.5 : 1 }}>
+            {loading ? 'Processing...' : 'Simulate'}
+          </button>
         </div>
-
-        <div style={{ ...inputGroupStyle, minWidth: isMobileOrTablet ? '45%' : 'auto' }}>
-          <label style={labelStyle}>Dataset Year</label>
-          <select value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)} style={selectStyle}>
-            {years.map((y) => <option key={y} value={y}>{y}</option>)}
-          </select>
-        </div>
-
-        <div style={{ ...inputGroupStyle, minWidth: isMobileOrTablet ? '28%' : 'auto' }}>
-          <label style={labelStyle}>Latitude</label>
-          <input type="number" step="any" value={latitude} disabled={selectedLocation !== "Custom Coordinates"} onChange={(e) => setLatitude(e.target.value)} required style={inputStyle} />
-        </div>
-
-        <div style={{ ...inputGroupStyle, minWidth: isMobileOrTablet ? '28%' : 'auto' }}>
-          <label style={labelStyle}>Longitude</label>
-          <input type="number" step="any" value={longitude} disabled={selectedLocation !== "Custom Coordinates"} onChange={(e) => setLongitude(e.target.value)} required style={inputStyle} />
-        </div>
-
-        <div style={{ ...inputGroupStyle, minWidth: isMobileOrTablet ? '28%' : 'auto' }}>
-          <label style={labelStyle}>Height (m)</label>
-          <input type="number" value={height} disabled={selectedLocation !== "Custom Coordinates"} onChange={(e) => setHeight(e.target.value)} required style={inputStyle} />
-        </div>
-
-        <button type="submit" style={{ ...actionBtnStyle, width: isMobileOrTablet ? '100%' : 'auto' }}>
-          {loading ? 'Processing...' : 'Simulate'}
-        </button>
       </form>
 
-      {/* 📱 Main Workspace Split Panel layout */}
-      <div style={{ 
-        display: 'flex', 
-        flexDirection: isMobileOrTablet ? 'column' : 'row', 
-        gap: '20px', 
-        flex: 1, 
-        overflow: 'visible',
-      }}>
-        
-        {/* Left Scroll Panel: Tables */}
-        <div style={{ 
-          ...scrollPanelStyle, 
-          width: isMobileOrTablet ? '100%' : '40%',
-          maxHeight: isMobileOrTablet ? '350px' : 'none',
-          overflowY: 'auto'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', borderBottom: '1px solid #e5ede9', paddingBottom: '10px', fontSize: '13px' }}>
-            <span>Total: <b>{satellites.length}</b></span>
-            <span style={{ color: '#4caf50' }}>Visible: <b>{visibleSatellites.length}</b></span>
-            <span style={{ color: '#e91e63' }}>Hidden: <b>{hiddenSatellites.length}</b></span>
+      {/* Workspace Split Panel */}
+      <div style={{ display: 'flex', flexDirection: isMobileOrTablet ? 'column' : 'row', gap: '20px', flex: 1 }}>
+        <div className="glass-panel" style={{ width: isMobileOrTablet ? '100%' : '40%', maxHeight: '600px', overflowY: 'auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', fontSize: '13px' }}>
+            <span style={{ color: '#a0aec0' }}>Total: <b>{satellites.length}</b></span>
+            <span style={{ color: '#52c41a' }}>Visible: <b>{visibleSatellites.length}</b></span>
+            <span style={{ color: '#ff4d4f' }}>Hidden: <b>{hiddenSatellites.length}</b></span>
           </div>
 
           {visibleSatellites.length > 0 ? (
-            <div style={{ marginBottom: '25px' }}>
-              <h4 style={{ color: '#3d614e', margin: '0 0 10px 0' }}> Visible Satellites Matrix</h4>
-              <table style={tableStyle}>
-                <thead>
-                  <tr style={{ backgroundColor: '#eef4f1' }}>
-                    <th style={thStyle}>PRN</th>
-                    <th style={thStyle}>Azimuth</th>
-                    <th style={thStyle}>Elevation</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {visibleSatellites.map((sat, index) => (
-                    <tr key={sat.satellite || index} style={{ borderBottom: '1px solid #f0f0f0' }}>
-                      <td style={tdStyle}><b>{sat.satellite}</b></td>
-                      <td style={tdStyle}>{sat.azimuth?.toFixed(1)}°</td>
-                      <td style={tdStyle}>{sat.elevation?.toFixed(1)}°</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+               <thead>
+                 <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                   <th style={{ padding: '8px', textAlign: 'left', color: '#94a3b8' }}>PRN</th>
+                   <th style={{ padding: '8px', textAlign: 'left', color: '#94a3b8' }}>Azimuth</th>
+                   <th style={{ padding: '8px', textAlign: 'left', color: '#94a3b8' }}>Elevation</th>
+                 </tr>
+               </thead>
+               <tbody>
+                 {visibleSatellites.map((sat, index) => (
+                   <tr key={index} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)' }}>
+                     <td style={{ padding: '12px 8px', color: '#52c41a', fontWeight: 'bold' }}>{sat.satellite}</td>
+                     <td style={{ padding: '12px 8px', color: '#fff' }}>{sat.azimuth?.toFixed(1)}°</td>
+                     <td style={{ padding: '12px 8px', color: '#fff' }}>{sat.elevation?.toFixed(1)}°</td>
+                   </tr>
+                 ))}
+               </tbody>
+             </table>
           ) : (
-            <div style={{ textAlign: 'center', color: '#7a8c85', padding: '20px 0' }}>
-              No active visible tracking coordinates. Run simulate parameters above.
-            </div>
+            <div style={{ textAlign: 'center', color: '#475569', marginTop: '40px' }}>No active tracking data.</div>
           )}
         </div>
         
-        {/* Right Panel: Skyplot Graphics Window */}
-        <div style={{ 
-          ...graphPanelStyle, 
-          width: isMobileOrTablet ? '100%' : '60%',
-          height: isMobileOrTablet ? 'auto' : '100%'
-        }}>
+        <div className="glass-panel" style={{ width: isMobileOrTablet ? '100%' : '60%' }}>
           <Skyplot visibleSatellites={visibleSatellites} isCompact={isMobileOrTablet} />
         </div>
-
-      </div>
+      </div> 
     </div>
   );
 }
 
-// Styling Objects Setup
-const containerStyle = { 
-  padding: '30px', 
-  display: 'flex', 
-  flexDirection: 'column', 
-  gap: '24px',
-  width: '100%',
-  boxSizing: 'border-box'
-};
-
-const scrollPanelStyle = {
-  background: '#fff',
-  borderRadius: '16px',
-  padding: '24px',
-  border: '1px solid #e2ece7',
-  boxSizing: 'border-box'
-};
-
-const graphPanelStyle = {
-  background: '#fff',
-  borderRadius: '16px',
-  padding: '24px',
-  border: '1px solid #e2ece7',
-  boxSizing: 'border-box'
-};
-
-const inputGroupStyle = {
-  flex: '1',
-  display: 'flex',
-  flexDirection: 'column'
-};
-
-const labelStyle = {
-  display: 'block',
-  fontSize: '12px',
-  fontWeight: 'bold',
-  color: '#50635c',
-  marginBottom: '6px'
-};
-
-const inputStyle = {
-  width: '100%',
-  padding: '10px',
-  borderRadius: '8px',
-  border: '1px solid #c8d6d0',
-  fontSize: '14px',
-  boxSizing: 'border-box',
-  outline: 'none',
-  color: '#2e3b37',
-  height: '41px',
-  backgroundColor: '#fff'
-};
-
-const selectStyle = {
-  width: '100%',
-  padding: '10px',
-  borderRadius: '8px',
-  border: '1px solid #c8d6d0',
-  fontSize: '14px',
-  boxSizing: 'border-box',
-  outline: 'none',
-  color: '#2e3b37',
-  height: '41px',
-  backgroundColor: '#fff',
-  cursor: 'pointer'
-};
-
-const actionBtnStyle = {
-  backgroundColor: '#3d614e',
-  color: '#fff',
-  border: 'none',
-  padding: '11px 24px',
-  borderRadius: '8px',
-  fontSize: '14px',
-  fontWeight: 'bold',
-  cursor: 'pointer',
-  height: '41px',
-  whiteSpace: 'nowrap'
-};
-
-const tableStyle = {
-  width: '100%',
-  borderCollapse: 'collapse',
-  textAlign: 'left',
-  fontSize: '13px'
-};
-
-const thStyle = {
-  padding: '10px',
-  fontWeight: '600',
-  color: '#3d614e',
-  borderBottom: '2px solid #e2ece7'
-};
-
-const tdStyle = {
-  padding: '10px',
-  color: '#2e3b37'
+const styles = {
+  container: { width: '100%', marginTop: '30px', paddingBottom: '40px' },
+  panelCard: { padding: '24px', marginBottom: '24px' },
+  formRow: { display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: '16px' },
+  inputGroup: { display: 'flex', flexDirection: 'column', flex: 1, minWidth: '140px' },
+  label: { fontSize: '11px', fontWeight: '600', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' },
+  textInput: { height: '42px', backgroundColor: 'rgba(0, 0, 0, 0.2)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '8px', color: '#ffffff', padding: '0 12px', fontSize: '14px', outline: 'none', fontFamily: 'monospace', width: '100%', boxSizing: 'border-box' },
+  selectInput: { height: '42px', backgroundColor: '#0f1115', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '8px', color: '#ffffff', padding: '0 12px', fontSize: '13.5px', outline: 'none', cursor: 'pointer', width: '100%', boxSizing: 'border-box' },
+  submitBtn: { height: '42px', padding: '0 24px', backgroundColor: '#ffffff', color: '#070809', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'background-color 0.15s ease' }
 };

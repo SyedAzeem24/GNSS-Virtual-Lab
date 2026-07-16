@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-// Comprehensive Location Presets Across Pakistan
 const PAKISTAN_LOCATIONS = {
   custom: { name: 'Custom Coordinates', lat: '', lng: '', alt: '' },
   karachi: { name: 'Karachi (Sindh)', lat: '24.8607', lng: '67.0011', alt: '10' },
@@ -17,29 +16,36 @@ const PAKISTAN_LOCATIONS = {
 };
 
 export default function Dop() {
-  // Defaulting to the first city in our list (Karachi) to avoid specific emphasis
   const [selectedPreset, setSelectedPreset] = useState('karachi');
-  const [formData, setFormData] = useState({
-    latitude: '24.8607',
-    longitude: '67.0011',
-    height: '10'
-  });
-  
+  const [formData, setFormData] = useState({ latitude: '24.8607', longitude: '67.0011', height: '10' });
   const [dopResults, setDopResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [activeVisualizerTab, setActiveVisualizerTab] = useState('good');
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const isMobileOrTablet = windowWidth < 1024;
+
+  const getRating = (value) => {
+    const val = parseFloat(value);
+    if (!val || val <= 0) return { label: 'Unknown', color: '#a0aec0', bg: 'rgba(255, 255, 255, 0.05)' };
+    if (val <= 2.0) return { label: 'Excellent', color: '#ffffff', bg: 'rgba(255, 255, 255, 0.15)' };
+    if (val <= 5.0) return { label: 'Good', color: '#e2e8f0', bg: 'rgba(255, 255, 255, 0.10)' };
+    return { label: 'Moderate', color: '#cbd5e1', bg: 'rgba(255, 255, 255, 0.06)' };
+  };
 
   const handlePresetChange = (e) => {
     const presetKey = e.target.value;
     setSelectedPreset(presetKey);
-    
     if (presetKey !== 'custom') {
       const target = PAKISTAN_LOCATIONS[presetKey];
-      setFormData({
-        latitude: target.lat,
-        longitude: target.lng,
-        height: target.alt
-      });
+      setFormData({ latitude: target.lat, longitude: target.lng, height: target.alt });
     }
   };
 
@@ -53,28 +59,20 @@ export default function Dop() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
     try {
       const response = await fetch('http://localhost:8000/dop', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           latitude: parseFloat(formData.latitude),
           longitude: parseFloat(formData.longitude),
           height: parseFloat(formData.height)
         })
       });
-
-      if (!response.ok) {
-        throw new Error(`Server responded with status: ${response.status}`);
-      }
-
+      if (!response.ok) throw new Error(`Server error: ${response.status}`);
       const data = await response.json();
       setDopResults(data);
     } catch (err) {
-      console.error("Error calculating DOP metrics:", err);
       setError("Failed to fetch calculation from the GNSS backend service.");
     } finally {
       setLoading(false);
@@ -82,121 +80,235 @@ export default function Dop() {
   };
 
   return (
-    <div style={{ padding: '30px', fontFamily: 'sans-serif', color: '#2e3b37', width: '100%', boxSizing: 'border-box' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%', marginTop: '30px' }}>
       
-      {/* Title */}
-      <div style={{ marginBottom: '25px' }}>
-        <h1 style={{ fontSize: '26px', margin: '0 0 6px 0', color: '#3d614e' }}>Dedicated DOP Analysis Workspace</h1>
-        <p style={{ color: '#7a8c85', margin: 0 }}>Evaluate geometry dilution constraints and coordinate matrices vectors.</p>
-      </div>
+      <h3 style={{ color: '#ffffff', fontSize: '22px', fontWeight: '600', margin: 0 }}>DOP Spatial Analysis</h3>
 
-      {/* Parameter Entry Form */}
-      <div style={{ background: '#fff', padding: '24px', borderRadius: '16px', border: '1px solid #e2ece7', marginBottom: '25px' }}>
-        <h3 style={{ margin: '0 0 16px 0', color: '#3d614e', fontSize: '16px' }}>Receiver Position Input Parameters</h3>
-        
-        <form onSubmit={handleCalculateDop} style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', alignItems: 'flex-end' }}>
+      {/* 🛠️ Input Section Header & Form styled in Dark Mode with High-Contrast inputs */}
+      <div className="glass-panel" style={{ padding: '24px' }}>
+        <form onSubmit={handleCalculateDop} style={{ display: 'flex', gap: '16px', alignItems: 'flex-end', flexWrap: isMobileOrTablet ? 'wrap' : 'nowrap' }}>
           
-          {/* Dropdown Menu featuring regional choices */}
-          <div style={{ flex: '1.5', minWidth: '220px' }}>
-            <label style={labelStyle}>Select Station / Location</label>
+          {/* Preset Selector */}
+          <div style={{ flex: 1.5, minWidth: isMobileOrTablet ? '100%' : '200px' }}>
+            <label className="dashboard-heading" style={labelStyle}>Location Preset</label>
             <select 
               value={selectedPreset} 
               onChange={handlePresetChange} 
-              style={selectStyle}
+              style={darkFieldStyle}
             >
-              <option value="custom">-- Custom Coordinates --</option>
-              {Object.keys(PAKISTAN_LOCATIONS).map((key) => {
-                if (key === 'custom') return null;
-                return (
-                  <option key={key} value={key}>
+              <option value="custom" style={{ background: '#0e1311', color: '#fff' }}>Custom Coordinates</option>
+              {Object.keys(PAKISTAN_LOCATIONS).map((key) => (
+                key !== 'custom' && (
+                  <option key={key} value={key} style={{ background: '#0e1311', color: '#fff' }}>
                     {PAKISTAN_LOCATIONS[key].name}
                   </option>
-                );
-              })}
+                )
+              ))}
             </select>
           </div>
 
-          <div style={{ flex: '1', minWidth: '120px' }}>
-            <label style={labelStyle}>Latitude</label>
-            <input type="number" name="latitude" step="any" value={formData.latitude} onChange={handleInputChange} style={inputStyle} required />
-          </div>
-          
-          <div style={{ flex: '1', minWidth: '120px' }}>
-            <label style={labelStyle}>Longitude</label>
-            <input type="number" name="longitude" step="any" value={formData.longitude} onChange={handleInputChange} style={inputStyle} required />
-          </div>
-          
-          <div style={{ flex: '1', minWidth: '120px' }}>
-            <label style={labelStyle}>Height (m)</label>
-            <input type="number" name="height" step="any" value={formData.height} onChange={handleInputChange} style={inputStyle} required />
-          </div>
+          {/* Input Fields */}
+          {['latitude', 'longitude', 'height'].map((field) => (
+            <div key={field} style={{ flex: 1, minWidth: '120px' }}>
+              <label className="dashboard-heading" style={labelStyle}>
+                {field === 'height' ? 'Height (M)' : field.toUpperCase()}
+              </label>
+              <input 
+                type="number" 
+                step="any" 
+                name={field}
+                value={formData[field]} 
+                disabled={selectedPreset !== 'custom'}
+                onChange={handleInputChange} 
+                required 
+                style={darkFieldStyle}
+              />
+            </div>
+          ))}
 
-          <button type="submit" disabled={loading} style={btnStyle}>
-            {loading ? 'Computing...' : 'Analyze Vector'}
+          {/* Curved Primary Action Button */}
+          <button 
+            type="submit" 
+            disabled={loading} 
+            style={curvedButtonStyle}
+          >
+            {loading ? 'Computing...' : 'Analyze Geometry'}
           </button>
         </form>
       </div>
 
-      {/* Error Alert Box */}
       {error && (
-        <div style={{ padding: '15px', backgroundColor: '#ffebee', color: '#c62828', borderRadius: '8px', marginBottom: '25px', fontSize: '14px' }}>
-           {error}
+        <div style={{ padding: '14px', backgroundColor: 'rgba(220, 38, 38, 0.1)', color: '#fca5a5', border: '1px solid rgba(220, 38, 38, 0.2)', borderRadius: '8px', fontSize: '13px' }}>
+          {error}
         </div>
       )}
 
-      {/* Live Data Dashboard Grid */}
-      {dopResults ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          
-          <div style={{ background: '#fff', padding: '24px', borderRadius: '16px', border: '1px solid #e2ece7' }}>
-            <h3 style={{ margin: '0 0 20px 0', color: '#3d614e', fontSize: '16px' }}>
-              Calculated Dilution Results (Active Satellites: {dopResults.visibleSatellites ?? 'N/A'})
-            </h3>
+      {/* 📱 Main Workspace Content Grid */}
+      <div style={{ display: 'flex', flexDirection: isMobileOrTablet ? 'column' : 'row', gap: '20px', flex: 1 }}>
+        
+        {/* Left Panel: Results Panel */}
+        <div className="glass-panel" style={{ width: isMobileOrTablet ? '100%' : '45%', display: 'flex', flexDirection: 'column', padding: '24px' }}>
+          {dopResults ? (
+            <>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', fontSize: '14px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '12px' }}>
+                <span style={{ color: '#e2e8f0', fontWeight: '500' }}>Active Constellation:</span>
+                <span style={{ color: '#ffffff', fontWeight: 'bold' }}>{dopResults.visibleSatellites ?? 0} Satellites</span>
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {[
+                  { label: 'Geometric DOP (GDOP)', val: dopResults.GDOP },
+                  { label: 'Position DOP (PDOP)', val: dopResults.PDOP },
+                  { label: 'Horizontal DOP (HDOP)', val: dopResults.HDOP },
+                  { label: 'Vertical DOP (VDOP)', val: dopResults.VDOP },
+                  { label: 'Time DOP (TDOP)', val: dopResults.TDOP }
+                ].map((item, index) => {
+                  const rating = getRating(item.val);
+                  return (
+                    <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '8px' }}>
+                      <span style={{ fontSize: '13px', color: '#cbd5e1', fontWeight: '500' }}>{item.label}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <span style={{ fontSize: '17px', color: '#ffffff', fontWeight: '700', fontFamily: 'monospace' }}>
+                          {item.val?.toFixed(2) ?? '0.00'}
+                        </span>
+                        <span style={{ fontSize: '10px', color: rating.color, backgroundColor: rating.bg, padding: '4px 10px', borderRadius: '12px', textTransform: 'uppercase', border: '1px solid rgba(255,255,255,0.08)', fontWeight: '600' }}>
+                          {rating.label}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, minHeight: '280px', color: '#cbd5e1', fontSize: '14px', textAlign: 'center', lineHeight: '1.5' }}>
+              Provide inputs above and click analyze to track dilution matrix.
+            </div>
+          )}
+        </div>
+
+        {/* Right Panel: High-Visibility Graphical Explainer */}
+        <div className="glass-panel" style={{ width: isMobileOrTablet ? '100%' : '55%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <span className="dashboard-heading" style={{ color: '#ffffff', fontSize: '15px', fontWeight: '600' }}>Constellation Geometry</span>
             
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '15px' }}>
-              <div style={resultCardStyle}>
-                <span style={dopLabelStyle}>Geometric DOP (GDOP)</span>
-                <span style={dopValueStyle}>{dopResults.GDOP?.toFixed(2) ?? '0.00'}</span>
-              </div>
-              <div style={resultCardStyle}>
-                <span style={dopLabelStyle}>Position DOP (PDOP)</span>
-                <span style={dopValueStyle}>{dopResults.PDOP?.toFixed(2) ?? '0.00'}</span>
-              </div>
-              <div style={resultCardStyle}>
-                <span style={dopLabelStyle}>Horizontal DOP (HDOP)</span>
-                <span style={dopValueStyle}>{dopResults.HDOP?.toFixed(2) ?? '0.00'}</span>
-              </div>
-              <div style={resultCardStyle}>
-                <span style={dopLabelStyle}>Vertical DOP (VDOP)</span>
-                <span style={dopValueStyle}>{dopResults.VDOP?.toFixed(2) ?? '0.00'}</span>
-              </div>
-              <div style={resultCardStyle}>
-                <span style={dopLabelStyle}>Time DOP (TDOP)</span>
-                <span style={dopValueStyle}>{dopResults.TDOP?.toFixed(2) ?? '0.00'}</span>
-              </div>
+            {/* Dark Segmented Control buttons */}
+            <div style={{ display: 'flex', gap: '4px', background: '#090d0b', padding: '3px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <button 
+                type="button"
+                onClick={() => setActiveVisualizerTab('good')}
+                style={{ ...tabBtnStyle, color: activeVisualizerTab === 'good' ? '#ffffff' : '#94a3b8', background: activeVisualizerTab === 'good' ? 'rgba(255,255,255,0.1)' : 'transparent' }}
+              >
+                Optimal (Low DOP)
+              </button>
+              <button 
+                type="button"
+                onClick={() => setActiveVisualizerTab('bad')}
+                style={{ ...tabBtnStyle, color: activeVisualizerTab === 'bad' ? '#ffffff' : '#94a3b8', background: activeVisualizerTab === 'bad' ? 'rgba(255,255,255,0.1)' : 'transparent' }}
+              >
+                Poor (High DOP)
+              </button>
             </div>
           </div>
 
-          <div style={{ background: '#eef4f1', padding: '16px', borderRadius: '12px', border: '1px solid #d8e6df', fontSize: '13px', color: '#3d614e', lineHeight: '1.5' }}>
-             <b>Interpretation:</b> Low values represent robust positional geometry, providing high-precision triangulation for tracking hardware configurations.
+          {/* SVG Canvas Area with clean high-contrast vectors */}
+          <div style={{ height: '200px', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#070a09', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', position: 'relative' }}>
+            <svg width="100%" height="100%" viewBox="0 0 400 180">
+              {/* Receiver (White Spot) */}
+              <circle cx="200" cy="140" r="5" fill="#ffffff" />
+              <text x="200" y="162" fill="#ffffff" fontSize="11" textAnchor="middle" fontWeight="600">Receiver</text>
+
+              {activeVisualizerTab === 'good' ? (
+                <>
+                  {/* Satellites */}
+                  <circle cx="90" cy="40" r="7" fill="#ffffff" opacity="0.8" />
+                  <circle cx="310" cy="40" r="7" fill="#ffffff" opacity="0.8" />
+                  <text x="90" y="25" fill="#ffffff" fontSize="10" textAnchor="middle">Sat 01</text>
+                  <text x="310" y="25" fill="#ffffff" fontSize="10" textAnchor="middle">Sat 02</text>
+                  
+                  {/* Rays */}
+                  <line x1="90" y1="40" x2="200" y2="140" stroke="#ffffff" strokeWidth="1.5" opacity="0.25" />
+                  <line x1="310" y1="40" x2="200" y2="140" stroke="#ffffff" strokeWidth="1.5" opacity="0.25" />
+                  
+                  {/* Geometry Area */}
+                  <ellipse cx="200" cy="140" rx="14" ry="14" fill="none" stroke="#ffffff" strokeWidth="1.5" strokeDasharray="3,3" opacity="0.4" />
+                  <text x="200" y="90" fill="#ffffff" fontSize="13" textAnchor="middle" fontWeight="600">Wide-Angle Triangulation</text>
+                </>
+              ) : (
+                <>
+                  {/* Satellites */}
+                  <circle cx="185" cy="35" r="7" fill="#ffffff" opacity="0.8" />
+                  <circle cx="215" cy="35" r="7" fill="#ffffff" opacity="0.8" />
+                  <text x="160" y="25" fill="#ffffff" fontSize="10" textAnchor="middle">Sat 01</text>
+                  <text x="240" y="25" fill="#ffffff" fontSize="10" textAnchor="middle">Sat 02</text>
+                  
+                  {/* Rays */}
+                  <line x1="185" y1="35" x2="200" y2="140" stroke="#ffffff" strokeWidth="1.5" opacity="0.25" strokeDasharray="3,3" />
+                  <line x1="215" y1="35" x2="200" y2="140" stroke="#ffffff" strokeWidth="1.5" opacity="0.25" strokeDasharray="3,3" />
+                  
+                  {/* Geometry Area */}
+                  <ellipse cx="200" cy="140" rx="16" ry="36" fill="none" stroke="#ffffff" strokeWidth="1.5" strokeDasharray="3,3" opacity="0.4" />
+                  <text x="200" y="90" fill="#ffffff" fontSize="13" textAnchor="middle" fontWeight="600">Clustered Constellation</text>
+                </>
+              )}
+            </svg>
           </div>
+          
+          <p style={{ margin: '14px 0 0 0', fontSize: '13px', color: '#cbd5e1', lineHeight: '1.5' }}>
+            Spatially separated satellites give precise geometric positioning vectors, minimizing multi-dimensional tracking uncertainty layout.
+          </p>
         </div>
-      ) : (
-        !loading && (
-          <div style={{ padding: '40px', background: '#fff', borderRadius: '16px', border: '1px solid #e2ece7', textAlign: 'center', color: '#7a8c85' }}>
-            Select a station preset or provide manual input metrics above, then click analyze to compute the live constellation profiles.
-          </div>
-        )
-      )}
+
+      </div>
     </div>
   );
 }
 
-// Layout Configuration Objects
-const labelStyle = { display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#50635c', marginBottom: '6px' };
-const inputStyle = { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #c8d6d0', fontSize: '14px', boxSizing: 'border-box', outline: 'none', color: '#2e3b37', height: '41px' };
-const selectStyle = { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #c8d6d0', fontSize: '14px', boxSizing: 'border-box', outline: 'none', color: '#2e3b37', height: '41px', backgroundColor: '#fff', cursor: 'pointer' };
-const btnStyle = { backgroundColor: '#3d614e', color: '#fff', border: 'none', padding: '11px 24px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', height: '41px', whiteSpace: 'nowrap' };
-const resultCardStyle = { background: '#f8faf9', padding: '16px', borderRadius: '12px', border: '1px solid #e8edea', display: 'flex', flexDirection: 'column', gap: '6px' };
-const dopLabelStyle = { fontSize: '11px', color: '#7a8c85', fontWeight: 'bold' };
-const dopValueStyle = { fontSize: '22px', color: '#2e3b37', fontWeight: '700' };
+// Global Custom Layout Variables
+const labelStyle = { 
+  marginBottom: '8px', 
+  display: 'block',
+  color: '#ffffff',
+  fontSize: '11px',
+  fontWeight: '700',
+  letterSpacing: '0.5px'
+};
+
+const darkFieldStyle = {
+  width: '100%',
+  height: '42px',
+  backgroundColor: '#0e1311',
+  color: '#ffffff',
+  border: '1px solid rgba(255, 255, 255, 0.15)',
+  borderRadius: '24px', // Curved Inputs to match!
+  padding: '0 16px',
+  fontSize: '14px',
+  boxSizing: 'border-box',
+  outline: 'none',
+  transition: 'border-color 0.2s',
+};
+
+// Premium, Pill-Shaped Rounded Action Button Style
+const curvedButtonStyle = {
+  height: '42px',
+  padding: '0 28px',
+  whiteSpace: 'nowrap',
+  backgroundColor: '#1b5e20',
+  color: '#ffffff',
+  border: '1px solid rgba(255, 255, 255, 0.15)',
+  borderRadius: '24px', // Curved visual edge styling
+  fontSize: '14px',
+  fontWeight: '600',
+  cursor: 'pointer',
+  transition: 'all 0.2s ease-in-out',
+};
+
+const tabBtnStyle = {
+  padding: '6px 14px',
+  fontSize: '11px',
+  fontWeight: '600',
+  border: 'none',
+  borderRadius: '20px', // Curved Pill Tabs
+  cursor: 'pointer',
+  transition: 'all 0.15s ease'
+};

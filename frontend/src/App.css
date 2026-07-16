@@ -1,184 +1,155 @@
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  margin-bottom: 24px;
+/* ==========================================================================
+   GLOBAL DESIGN SYSTEM: NCGSA SPACE SIMULATION LAB
+   ========================================================================== */
 
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
+/* 1. ROOT DESIGN VARIABLES & PALETTE */
+:root {
+  --bg-primary: #08090b;                /* Pure premium deep matte black */
+  --text-primary: #ffffff;              /* Stark clean white */
+  --text-muted: #94a3b8;                /* Soft slate gray for descriptions */
+  --text-dim: #54657a;                  /* Muted footnote labels */
+  
+  /* Glass Spec (Exactly matching the overlay card in your screenshot) */
+  --glass-bg: rgba(25, 30, 36, 0.25);   /* Semi-translucent dark tint */
+  --glass-border: rgba(255, 255, 255, 0.06); /* Super thin frosty edge */
+  --glass-blur: blur(24px);             /* Ultra smooth backdrop dispersion */
+  
+  /* Landing Page Olive Accent Palettes */
+  --accent-green-solid: #1c2e24;        /* Deep space olive button base */
+  --accent-green-border: rgba(255, 255, 255, 0.12);
+  --accent-green-hover: #233a2d;        /* Interactive highlight */
 }
 
-.hero {
-  position: relative;
-
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
-
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
-
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
-  }
-}
-
-#center {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-  place-content: center;
-  place-items: center;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
-}
-
-#next-steps {
-  display: flex;
-  border-top: 1px solid var(--border);
-  text-align: left;
-
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
-  }
-
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
-  }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
-  }
-}
-
-#docs {
-  border-right: 1px solid var(--border);
-
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
-}
-
-#next-steps ul {
-  list-style: none;
+/* 2. UNIVERSAL RESETS & SEAMLESS TRANSITIONS */
+* {
+  box-sizing: border-box;
+  margin: 0;
   padding: 0;
-  display: flex;
-  gap: 8px;
-  margin: 32px 0 0;
-
-  .logo {
-    height: 18px;
-  }
-
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  }
+  transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+              border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+              box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
-  }
+body {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.ticks {
-  position: relative;
+/* 3. REUSABLE GLASS LAYOUT CLASSNAMES */
+
+/* Glass Card - matches the card containing the text "Welcome to GNSS Simulation Lab" */
+.glass-panel {
+  background-color: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 1px 0px rgba(255, 255, 255, 0.05);
+}
+
+/* Hoverable micro-interactive state for menu options and modules */
+.glass-panel-interactive {
+  background-color: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+.glass-panel-interactive:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.14);
+  background-color: rgba(255, 255, 255, 0.02);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3), inset 0 1px 0px rgba(255, 255, 255, 0.1);
+}
+
+/* 4. PREMIUM COMPONENT RESETS (STUDENT FRIENDLY) */
+
+/* Translucent input field blocks */
+input[type="text"], input[type="password"], input[type="email"], select, textarea {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 8px !important;
+  color: var(--text-primary) !important;
+  padding: 12px 16px !important;
+  outline: none !important;
+  font-size: 13.5px !important;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+/* Rounded Dark-Olive Button Style (matches "Launch Virtual Simulation Lab" button) */
+.btn-primary-green {
+  background-color: var(--accent-green-solid);
+  border: 1px solid var(--accent-green-border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  padding: 12px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.btn-primary-green:hover {
+  background-color: var(--accent-green-hover);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Hollow Button Style (matches "Explore GNSS Constellations" button) */
+.btn-secondary-outline {
+  background-color: rgba(255, 255, 255, 0.01);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: var(--text-primary);
+  padding: 12px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.btn-secondary-outline:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+/* Decorative Subtle Horizontal Divider Line */
+.glass-divider {
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.06);
   width: 100%;
+}
 
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
-  }
+/* 5. SMOOTH MINIMALIST CUSTOM SCROLLBARS */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
 
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
-  }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
-  }
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }

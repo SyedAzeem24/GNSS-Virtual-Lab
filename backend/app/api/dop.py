@@ -1,9 +1,10 @@
 from fastapi import APIRouter
 
-from app.models.visibility_request import VisibilityRequest
+from app.schemas.visibility_request import VisibilityRequest
 from app.services.visibility import compute_visibility
 from app.services.receiver_position import llh_to_ecef
 from app.services.dop import compute_dop
+from app.database.database import get_db
 
 router = APIRouter(
     prefix="/dop",
