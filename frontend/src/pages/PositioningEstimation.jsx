@@ -129,7 +129,7 @@ export default function PositioningEstimation() {
             <div style={styles.metricStack}>
               <div style={styles.metricRow}><span>Lat</span> <span style={styles.mono}>{position.actual?.latitude}°</span></div>
               <div style={styles.metricRow}><span>Lon</span> <span style={styles.mono}>{position.actual?.longitude}°</span></div>
-              <div style={styles.metricRow} style={{...styles.metricRow, border: 'none'}}><span>Height</span> <span style={styles.mono}>{position.actual?.height} m</span></div>
+              <div style={{...styles.metricRow, border: 'none'}}><span>Height</span> <span style={styles.mono}>{position.actual?.height} m</span></div>
             </div>
           </div>
 
@@ -139,7 +139,7 @@ export default function PositioningEstimation() {
             <div style={styles.metricStack}>
               <div style={styles.metricRow}><span>Lat</span> <span style={styles.mono}>{position.estimated?.latitude}°</span></div>
               <div style={styles.metricRow}><span>Lon</span> <span style={styles.mono}>{position.estimated?.longitude}°</span></div>
-              <div style={styles.metricRow} style={{...styles.metricRow, border: 'none'}}><span>Height</span> <span style={styles.mono}>{position.estimated?.height} m</span></div>
+              <div style={{...styles.metricRow, border: 'none'}}><span>Height</span> <span style={styles.mono}>{position.estimated?.height} m</span></div>
             </div>
           </div>
 
