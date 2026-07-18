@@ -87,14 +87,15 @@ const sidebarContainerTransitionStyle = {
   zIndex: 100 // Keep sidebar above background
 };
 
-const mainContentPanelStyle = { 
-  flex: 1, 
-  padding: '30px', 
-  overflowY: 'auto', 
-  boxSizing: 'border-box', 
-  backgroundColor: 'transparent', // 👈 This is key
-  position: 'relative',
-  transition: 'padding 0.25s ease'
+const mainContentPanelStyle = {
+    flex: 1,
+    padding: '30px',
+    paddingTop: '80px',
+    overflowY: 'auto',
+    boxSizing: 'border-box',
+    backgroundColor: 'transparent',
+    position: 'relative',
+    transition: 'padding 0.25s ease'
 };
 
 const floatingModulesButtonStyle = { 

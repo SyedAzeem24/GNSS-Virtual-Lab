@@ -20,6 +20,8 @@ from app.models.skyplot import SkyplotResult
 from app.models.module_progress import ModuleProgress
 from app.models.user_session import UserSession
 
+Base.metadata.create_all(bind=engine)
+
 # Routers
 from app.api.education import router as education_router
 from app.api.visibility import router as visibility_router

@@ -1,4 +1,4 @@
-import React, { useContext, useState, useRef, useEffect } from 'react';
+import React, { useContext} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import ncgsaLogo from '../assets/ncgsa-logo.png'; 
@@ -34,18 +34,6 @@ const dropdownItemStyle = { width: '100%', background: 'none', border: 'none', p
 export default function Sidebar({ currentTab, setCurrentTab, onCloseSidebar }) {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const profileDropdownRef = useRef(null);
-
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
-        setIsProfileOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   const handleSignOut = () => {
     logout();
@@ -62,7 +50,10 @@ export default function Sidebar({ currentTab, setCurrentTab, onCloseSidebar }) {
   ];
 
   return (
-    <div style={sidebarWrapperStyle}>
+  <div style={sidebarWrapperStyle}>
+
+    {/* Brand */}
+    <div>
       <div style={brandHeaderStyle}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <img src={ncgsaLogo} alt="Logo" style={logoImageStyle} />
@@ -71,46 +62,106 @@ export default function Sidebar({ currentTab, setCurrentTab, onCloseSidebar }) {
             <div style={brandSubtitleStyle}>Space Simulation Lab</div>
           </div>
         </div>
-        <button onClick={onCloseSidebar} style={closeSidebarButtonStyle}>✕</button>
+
+        <button
+          onClick={onCloseSidebar}
+          style={closeSidebarButtonStyle}
+        >
+          ✕
+        </button>
       </div>
 
+      {/* User Info */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          padding: '12px 10px',
+          marginBottom: '18px',
+          borderTop: '1px solid rgba(255,255,255,0.08)',
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
+        }}
+      >
+        <div style={avatarPlaceholderStyle}>
+          {user?.full_name?.charAt(0).toUpperCase() || "U"}
+        </div>
+
+        <div>
+          <div
+            style={{
+              color: "#f8fafc",
+              fontSize: "13px",
+              fontWeight: "600"
+            }}
+          >
+            {user?.full_name}
+          </div>
+
+          <div
+            style={{
+              color: "#64748b",
+              fontSize: "10px"
+            }}
+          >
+            {user?.email}
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation */}
       <nav style={navigationStackStyle}>
         {menuItems.map((item) => (
           <button
             key={item.id}
-            onClick={() => { setCurrentTab(item.id); onCloseSidebar(); }}
+            onClick={() => {
+              setCurrentTab(item.id);
+              onCloseSidebar();
+            }}
             style={{
               ...navButtonStyle,
-              backgroundColor: currentTab === item.id ? 'rgba(255, 255, 255, 0.08)' : 'transparent', 
-              color: currentTab === item.id ? '#f8fafc' : '#94a3b8',
+              backgroundColor:
+                currentTab === item.id
+                  ? "rgba(255,255,255,0.08)"
+                  : "transparent",
+              color:
+                currentTab === item.id
+                  ? "#f8fafc"
+                  : "#94a3b8",
             }}
           >
             {item.label}
           </button>
         ))}
       </nav>
-
-      <div style={profileFooterSectionStyle} ref={profileDropdownRef}>
-        <button onClick={() => setIsProfileOpen(!isProfileOpen)} style={profileActionTriggerStyle}>
-          <div style={avatarPlaceholderStyle}>{user?.full_name?.charAt(0).toUpperCase() || 'U'}</div>
-          <div style={{ overflow: 'hidden', textAlign: 'left' }}>
-            <div style={{ color: '#f8fafc', fontSize: '13px', fontWeight: '500' }}>{user?.full_name || 'Account'}</div>
-            <div style={{ color: '#64748b', fontSize: '10px' }}>{user?.email || 'User Settings'}</div>
-          </div>
-        </button>
-
-        {isProfileOpen && (
-          <div style={sidebarDropdownCardStyle}>
-            <button onClick={() => { setCurrentTab('settings'); setIsProfileOpen(false); }} style={dropdownItemStyle}>
-              ⚙️ System Settings
-            </button>
-            <div style={{ height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.08)' }}></div>
-            <button onClick={handleSignOut} style={{ ...dropdownItemStyle, color: '#ff6b6b' }}>
-              🛑 Sign Out
-            </button>
-          </div>
-        )}
-      </div>
     </div>
-  );
+
+    {/* Bottom Actions */}
+    <div
+      style={{
+        borderTop: "1px solid rgba(255,255,255,0.08)",
+        paddingTop: "14px",
+      }}
+    >
+      <button
+        onClick={() => setCurrentTab("settings")}
+        style={dropdownItemStyle}
+      >
+        ⚙️ System Settings
+      </button>
+
+      <button
+        onClick={handleSignOut}
+        style={{
+          ...dropdownItemStyle,
+          color: "#ff6b6b",
+          marginTop: "6px",
+        }}
+      >
+        🛑 Sign Out
+      </button>
+    </div>
+
+  </div>
+);
 }
