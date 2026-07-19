@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import LandingPage from './components/LandingPage';
 import Dashboard from './pages/Dashboard'; 
-import Simulation from './pages/Simulation';
+import Simulation from './pages/simulation';
 import Dop from './pages/Dop';
 import { AuthContext } from './context/AuthContext';
 import PositioningEstimation from './pages/PositioningEstimation';
