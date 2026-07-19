@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import MapPicker from "../components/MapPicker";
 
 export default function PositioningEstimation() {
   const [latitude, setLatitude] = useState("");
@@ -118,6 +119,31 @@ export default function PositioningEstimation() {
           </button>
         </div>
       </div>
+      
+      <div
+  className="glass-panel"
+  style={{
+    padding: "20px",
+    marginBottom: "24px",
+  }}
+>
+  <h3
+    style={{
+      color: "#fff",
+      marginBottom: "16px",
+      fontSize: "16px",
+    }}
+  >
+    Select Receiver Position
+  </h3>
+
+  <MapPicker
+    latitude={latitude}
+    longitude={longitude}
+    setLatitude={setLatitude}
+    setLongitude={setLongitude}
+  />
+</div>
 
       {/* Interactive Telemetry Reports Area */}
       {position ? (

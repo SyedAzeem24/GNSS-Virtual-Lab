@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Skyplot from '../components/Skyplot';
+import MapPicker from "../components/MapPicker";
 
 export default function Simulation() {
   const [latitude, setLatitude] = useState("");
@@ -72,7 +73,30 @@ export default function Simulation() {
   return (
     <div style={styles.container}>
       <h3 style={{ color: '#fff', fontSize: '20px', fontWeight: '600', marginBottom: '24px' }}>Simulation Parameters</h3>
+      <div
+    className="glass-panel"
+    style={{
+        marginBottom: "24px",
+        padding: "18px",
+    }}
+>
+    <h4
+        style={{
+            color: "#fff",
+            marginBottom: "15px",
+            fontSize: "16px",
+        }}
+    >
+        📍 Select Receiver Location
+    </h4>
 
+    <MapPicker
+        latitude={latitude}
+        longitude={longitude}
+        setLatitude={setLatitude}
+        setLongitude={setLongitude}
+        />
+      </div>
       {/* High-Tech Parameter Grid Card */}
       <form onSubmit={handleSubmit} className="glass-panel" style={styles.panelCard}>
         <div style={styles.formRow}>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import MapPicker from "../components/MapPicker";
 
 const PAKISTAN_LOCATIONS = {
   custom: { name: 'Custom Coordinates', lat: '', lng: '', alt: '' },
@@ -136,6 +137,35 @@ export default function Dop() {
           </button>
         </form>
       </div>
+      
+      <div
+  className="glass-panel"
+  style={{
+    padding: "20px",
+    marginBottom: "24px",
+  }}
+>
+  <h3
+    style={{
+      color: "#fff",
+      marginBottom: "16px",
+      fontSize: "16px",
+    }}
+  >
+    Select Analysis Location
+  </h3>
+
+  <MapPicker
+    latitude={formData.latitude}
+    longitude={formData.longitude}
+    setLatitude={(lat) =>
+      setFormData((prev) => ({ ...prev, latitude: lat }))
+    }
+    setLongitude={(lng) =>
+      setFormData((prev) => ({ ...prev, longitude: lng }))
+    }
+  />
+</div>
 
       {error && (
         <div style={{ padding: '14px', backgroundColor: 'rgba(220, 38, 38, 0.1)', color: '#fca5a5', border: '1px solid rgba(220, 38, 38, 0.2)', borderRadius: '8px', fontSize: '13px' }}>
