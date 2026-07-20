@@ -16,7 +16,7 @@ export default function ForgotPassword() {
     setError('');
     setMessage('');
     try {
-      await axios.post('http://127.0.0.1:8000/api/auth/forgot-password', { email });
+      await axios.post('/api/auth/forgot-password', { email });
       setMessage('Verification security code dispatched to email successfully!');
       setStep(2);
     } catch (err) {
@@ -29,7 +29,7 @@ export default function ForgotPassword() {
     setError('');
     setMessage('');
     try {
-      await axios.post('http://127.0.0.1:8000/api/auth/reset-password', {
+      await axios.post('/api/auth/reset-password', {
         email,
         verification_code: code,
         new_password: newPassword
