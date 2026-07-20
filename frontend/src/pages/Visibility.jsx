@@ -19,7 +19,7 @@ function Positioning() {
   const fetchPosition = async () => {
     setLoading(true);
     try {
-      const response = await axios.post("http://127.0.0.1:8000/positioning/", {
+      const response = await axios.post("/positioning/", {
         latitude: Number(latitude),
         longitude: Number(longitude),
         height: Number(height),

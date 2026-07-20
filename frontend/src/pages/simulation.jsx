@@ -37,7 +37,7 @@ export default function Simulation() {
   const fetchVisibility = async (lat, lon, h) => {
     setLoading(true);
     try {
-      const response = await axios.post("http://127.0.0.1:8000/visibility/", {
+      const response = await axios.post("/visibility/", {
         latitude: Number(lat),
         longitude: Number(lon),
         height: Number(h),
