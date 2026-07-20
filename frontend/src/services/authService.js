@@ -3,7 +3,7 @@ import api from "../api/axios";
 const register = async (userData) => {
 
     const response = await api.post(
-        "/auth/register",
+        "/api/auth/register",
         userData
     );
 
@@ -13,7 +13,7 @@ const register = async (userData) => {
 const login = async (userData) => {
 
     const response = await api.post(
-        "/auth/login",
+        "/api/auth/login",
         userData
     );
 
